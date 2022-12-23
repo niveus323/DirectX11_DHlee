@@ -41,16 +41,16 @@ public:
 //DXTrace를 사용하기 위해 dxerr 포함. 오류가 발생한 파일과 행번호를 보여주는 메시지 상자를 띄우는 함수.
 //L#x는 매크로의 인수 토큰을 유니코드 문자열로 반환.
 #if defined(DEBUG) | defined(_DEBUG)		
-	#ifndef HR(x)												
-	#define	HR(x)											\
-	{														\
-		HRESULT hr = (x);										\
-		if (FAILED(hr))										\
-		{													\
-			LPWSTR output;									\
-			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &output, 0, NULL);	\
+	#ifndef HR(x)											\	
+	#define HR(x)											\
+	{													\
+		HRESULT hr = (x);									\
+		if (FAILED(hr))									\
+		{												\
+			LPWSTR output;								\
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &output, 0, NULL);\
 			MessageBox(NULL, output, TEXT("ERROR"), MB_OK);	\
-		}													\
+		}												\
 	}														
 	#endif // !HR(x)
 

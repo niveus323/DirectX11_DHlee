@@ -229,6 +229,13 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		mTimer.Start();
 		OnResize();
 		return 0;
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE)	//ESC키를 누르면 예/아니오 메시지 상자를 띄운다.
+		{
+			if (MessageBox(NULL, TEXT("종료하시겠습니까?"), TEXT("종료"), MB_YESNO) == IDYES)
+				PostMessage(mhMainWnd, WM_CLOSE, 0, 0);	//WM_CLOSE를 보내도록 하여 응용 프로그램 종료 처리.
+		}
+		return 0;
 		//창 파괴 시 발생.
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -477,7 +484,7 @@ bool D3DApp::InitDirect3D()
 		DXGI_MODE_DESC* _displayModes = NULL;
 		_displayModes = new DXGI_MODE_DESC[_nModes];
 		(*iter)->GetDisplayModeList(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, NULL, &_nModes, _displayModes);
-		for (int n = 0; n < _nModes; n++)
+		for (unsigned int n = 0; n < _nModes; n++)
 		{
 			woss << "***WIDTH = " << _displayModes[n].Width << " HEIGHT = " << _displayModes[n].Height << " REFRESH = " << _displayModes[n].RefreshRate.Numerator << "/" << _displayModes[n].RefreshRate.Denominator << "\n";
 		}

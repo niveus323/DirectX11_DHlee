@@ -12,7 +12,8 @@ public:
 	void DrawScene();
 };
 
-
+#pragma warning(push)
+#pragma warning(disable : 28251)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
 #if defined(DEBUG) | defined(_DEBUG)
@@ -26,6 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 	return theApp.Run();
 }
+#pragma warning(pop)
 
 InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance) : D3DApp(hInstance) {}
 

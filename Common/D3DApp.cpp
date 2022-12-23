@@ -110,12 +110,13 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilBuffer);
 
 	HR(mSwapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-	ID3D11Texture2D* backBuffer;
+	ID3D11Texture2D* backBuffer = nullptr;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
+	assert(backBuffer);
 	HR(md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
 	ReleaseCOM(backBuffer);
 
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	D3D11_TEXTURE2D_DESC depthStencilDesc{};
 
 	depthStencilDesc.Width = mClientWidth;
 	depthStencilDesc.Height = mClientHeight;
@@ -140,6 +141,7 @@ void D3DApp::OnResize()
 	depthStencilDesc.MiscFlags = 0;
 
 	HR(md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
+	assert(mDepthStencilBuffer);
 	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
 	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
@@ -160,7 +162,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
-		//프로그램 활성화/비활성화시 발생.
+	//프로그램 활성화ㆍ비활성화시 발생.
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
@@ -173,6 +175,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			mTimer.Start();
 		}
 		return 0;
+
 	case WM_SIZE:
 		mClientHeight = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
@@ -216,19 +219,23 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		return 0;
-		//변경 테두리를 잡을 시 발생.
+
+	//변경 테두리를 잡을 시 발생.
 	case WM_ENTERSIZEMOVE:
 		mAppPaused = true;
 		mResizing = true;
 		mTimer.Stop();
 		return 0;
-		//변경 테두리를 놓으면 발생.
+
+	//변경 테두리를 놓으면 발생.
 	case WM_EXITSIZEMOVE:
 		mAppPaused = false;
 		mResizing = false;
 		mTimer.Start();
 		OnResize();
 		return 0;
+
+	//키 입력 시(키를 누를시) 발생
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)	//ESC키를 누르면 예/아니오 메시지 상자를 띄운다.
 		{
@@ -236,35 +243,42 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				PostMessage(mhMainWnd, WM_CLOSE, 0, 0);	//WM_CLOSE를 보내도록 하여 응용 프로그램 종료 처리.
 		}
 		return 0;
-		//창 파괴 시 발생.
+
+	//창 파괴 시 발생.
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-		//입력한 키가 메뉴 항목에 대응하지 않을 경우 발생.
+
+	//입력한 키가 메뉴 항목에 대응하지 않을 경우 발생.
 	case WM_MENUCHAR:
 		//삐 소리를 방지하기 위해 0이 아닌 값을 리턴한다.
 		return MAKELRESULT(0, MNC_CLOSE);
-		//윈도우 크기 변경시 발생. 디폴트 최소/최대 크기 설정.
+
+	//윈도우 크기 변경시 발생. 디폴트 최소/최대 크기 설정.
 	case WM_GETMINMAXINFO:
 		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
 		return 0;
-		//마우스 입력 처리
-		//windowsx.h의 GET_X_LPARAM, GET_Y_LPARAM 사용.
+
+	//마우스 입력 처리
+	//windowsx.h의 GET_X_LPARAM, GET_Y_LPARAM 사용.
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
 		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	}
+
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
@@ -363,7 +377,7 @@ bool D3DApp::InitDirect3D()
 	HR(md3dDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
 	assert(m4xMsaaQuality > 0);
 
-	DXGI_SWAP_CHAIN_DESC sd;
+	DXGI_SWAP_CHAIN_DESC sd{};
 	sd.BufferDesc.Width = mClientWidth;
 	sd.BufferDesc.Height = mClientHeight;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
@@ -480,20 +494,23 @@ bool D3DApp::InitDirect3D()
 	{
 		UINT _nModes = 0;
 		(*iter)->GetDisplayModeList(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, NULL, &_nModes, NULL);
+		
+		if (_nModes <= 0)
+			break;
 
-		DXGI_MODE_DESC* _displayModes = NULL;
-		_displayModes = new DXGI_MODE_DESC[_nModes];
+		#pragma warning(push)
+		#pragma warning(disable : 6385)
+		DXGI_MODE_DESC* _displayModes = new DXGI_MODE_DESC[_nModes];
 		(*iter)->GetDisplayModeList(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, NULL, &_nModes, _displayModes);
-		for (unsigned int n = 0; n < _nModes; n++)
+		for (UINT n = 0; n < _nModes; n++)
 		{
 			woss << "***WIDTH = " << _displayModes[n].Width << " HEIGHT = " << _displayModes[n].Height << " REFRESH = " << _displayModes[n].RefreshRate.Numerator << "/" << _displayModes[n].RefreshRate.Denominator << "\n";
 		}
-
+		#pragma warning(pop)
 	}
 
 	OutputDebugString(woss.str().c_str());
 #endif // defined(DEBUG) | defined(_DEBUG)
-
 
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdaptor);

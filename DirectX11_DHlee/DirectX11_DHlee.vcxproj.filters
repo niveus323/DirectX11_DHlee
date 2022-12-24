@@ -16,20 +16,38 @@
     <Filter Include="Common">
       <UniqueIdentifier>{16af903a-19a6-4132-9bce-ebb46ec1a327}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FX">
+      <UniqueIdentifier>{026317e6-2fc2-4dac-992d-b88fd4f5f9b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InitDirect3DApp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\D3DApp.cpp">
+    <ClCompile Include="..\Common\d3dApp.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\GameTimer.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="BoxApp.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\GeometryGenerator.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\MathHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\d3dUtil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\DDSTextureLoader11.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\D3DApp.h">
+    <ClInclude Include="..\Common\d3dApp.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\d3dUtil.h">
@@ -38,5 +56,30 @@
     <ClInclude Include="..\Common\GameTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\d3dx11effect.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\GeometryGenerator.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MathHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\d3dxGlobal.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DDSTextureLoader11.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\FX\color.fx">
+      <Filter>FX</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\FX\color.fxo">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
 </Project>

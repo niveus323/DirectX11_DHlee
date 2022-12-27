@@ -19,19 +19,16 @@
     <Filter Include="FX">
       <UniqueIdentifier>{026317e6-2fc2-4dac-992d-b88fd4f5f9b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Application">
+      <UniqueIdentifier>{ce27832d-6c1e-48a2-894a-b32d208b22b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InitDirect3DApp.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\d3dApp.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\GameTimer.cpp">
       <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="BoxApp.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\GeometryGenerator.cpp">
       <Filter>Common</Filter>
@@ -44,6 +41,33 @@
     </ClCompile>
     <ClCompile Include="..\Common\DDSTextureLoader11.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Waves.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="HillsApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="InitDirect3DApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapesApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="SkullApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="WavesApp.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Exercise_Chapter 6_2.cpp">
+      <Filter>소스 파일\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Exercise_Chapter 6_3.cpp">
+      <Filter>소스 파일\Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +95,12 @@
     <ClInclude Include="..\Common\DDSTextureLoader11.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Waves.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\FX\color.fx">
@@ -81,5 +111,10 @@
     <None Include="..\FX\color.fxo">
       <Filter>FX</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Common\DirectX11_DHlee.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -74,6 +74,10 @@ protected:
 
 	//4XMSAA 사용시 true.
 	bool mEnable4xMsaa;
+
+	//메뉴 추가시 해당 멤버변수에 생성한 메뉴를 넣음으로써 처리할 수 있게함.
+	LPCWSTR mMenuName;
+
 };
 
 

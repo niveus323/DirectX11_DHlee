@@ -1,6 +1,7 @@
 #include "d3dApp.h"
 #include <windowsx.h>
 #include <iostream>
+#include "resource.h"
 
 namespace
 {
@@ -14,7 +15,26 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-D3DApp::D3DApp(HINSTANCE hInstance) : mhAppInst(hInstance), mMainWndCaption(TEXT("D3D11 Application")), md3dDriverType(D3D_DRIVER_TYPE_HARDWARE), mClientWidth(800), mClientHeight(600), mEnable4xMsaa(false), mhMainWnd(0), mAppPaused(false), mMinimized(false), mMaximized(false), mResizing(false), m4xMsaaQuality(0), md3dDevice(0), md3dImmediateContext(0), mSwapChain(0), mDepthStencilBuffer(0), mRenderTargetView(0), mDepthStencilView(0)
+D3DApp::D3DApp(HINSTANCE hInstance) : 
+	mhAppInst(hInstance), 
+	mMainWndCaption(TEXT("D3D11 Application")), 
+	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE), 
+	mClientWidth(800), 
+	mClientHeight(600), 
+	mEnable4xMsaa(false), 
+	mhMainWnd(0), 
+	mAppPaused(false), 
+	mMinimized(false), 
+	mMaximized(false), 
+	mResizing(false), 
+	m4xMsaaQuality(0), 
+	md3dDevice(0), 
+	md3dImmediateContext(0), 
+	mSwapChain(0), 
+	mDepthStencilBuffer(0), 
+	mRenderTargetView(0), 
+	mDepthStencilView(0),
+	mMenuName(0)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 
@@ -277,6 +297,19 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case ID_HELP_ABOUT:
+			MessageBox(NULL, TEXT("원하는 메뉴를 선택하여 작업 결과를 확인하세요!"), TEXT("About"), MB_OK);
+			break;
+		case ID_EXIT:
+			if (MessageBox(NULL, TEXT("종료하시겠습니까?"), TEXT("종료"), MB_YESNO) == IDYES)
+				PostMessage(mhMainWnd, WM_CLOSE, 0, 0);	//WM_CLOSE를 보내도록 하여 응용 프로그램 종료 처리.
+			break;
+		}
+		return 0;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -298,7 +331,7 @@ bool D3DApp::InitMainWindow()
 	wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION); //아이콘 설정. IDI_APPLICATION은 기본 애플리케이션 아이콘을 의미. 
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);	//커서 설정. IDC_ARROW는 기본 커서를 의미한다. 
 	wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);	//배경 설정. GetStockObject를 통해 하얀색 브러쉬를 얻어와 설정함. hbrBackground는 HBRUSH 타입이고 StockObject는 HGDIOBJ 타입이므로 형변환 수행.
-	wc.lpszMenuName = 0; //클래스 기본 메뉴. 0은 메뉴가 존재하지 않음을 의미.
+	wc.lpszMenuName = mMenuName; //클래스 기본 메뉴. 0은 메뉴가 존재하지 않음을 의미.
 	wc.lpszClassName = TEXT("BasicWndClass"); //wide character로 윈도우 클래스의 이름을 정의. TEXT로 멀티바이트 <-> 유니코드 변경을 자동화.
 
 	if (!RegisterClass(&wc))	//윈도우 클래스를 등록.

@@ -410,24 +410,33 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadi
 
 void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData)
 {
+	//XZ평면에 평면을 만든 후, 각 점마다 f(x,z)를 적용하여 y 성분을 구한다.
+	//X방향으로 n등분, Z방향으로 m등분하여 총 Vertex의 수는 m*n.
 	UINT vertexCount = m * n;
+	//m*n 크기의 그리드에 필요한 삼각형의 수는 2*(m-1)*(n-1)개.
 	UINT faceCount = (m - 1) * (n - 1) * 2;
 
+	//(-0.5, 0.5)로 대칭이 되도록 좌표 중심을 설정.
 	float halfWidth = 0.5f * width;
 	float halfDepth = 0.5f * depth;
 
+	//각 방향으로 정점좌표의 일정한 차이를 계산
 	float dx = width / (n - 1);
 	float dz = depth / (m - 1);
 
+	//UV좌표 또한 각 Vertex에 온전히 들어갈 수 있도록 du, dv 계산.
 	float du = 1.0f / (n - 1);
 	float dv = 1.0f / (m - 1);
 
+	//XZ평면의 Vertex 정보 생성
 	meshData.Vertices.resize(vertexCount);
 	for (UINT i = 0; i < m; ++i)
 	{
+		//Z : +0.5부터 -0.5로 이동하며 좌표를 설정.
 		float z = halfDepth - i * dz;
 		for (UINT j = 0; j < n; ++j)
 		{
+			//X : -0.5부터 +0.5로 이동하며 좌표 설정
 			float x = -halfWidth + j * dx;
 
 			meshData.Vertices[i * n + j].Position = XMFLOAT3(x, 0.0f, z);
@@ -438,8 +447,8 @@ void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, Mes
 		}
 	}
 
+	//삼각형 2개로 그리드의 사각형을 그린다.
 	meshData.Indices.resize(faceCount * 3);
-
 	UINT k = 0;
 	for (UINT i = 0; i < m - 1; ++i)
 	{

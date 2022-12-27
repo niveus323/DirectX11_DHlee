@@ -36,8 +36,6 @@ private:
 
 	ID3D11InputLayout* mInputLayout;
 
-	ID3D11RasterizerState* mPointsRS;
-
 	XMFLOAT4X4 mWorld;
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
@@ -99,7 +97,6 @@ Exercise_Chapter6_3::~Exercise_Chapter6_3()
 	ReleaseCOM(mPointsIB);
 	ReleaseCOM(mFX);
 	ReleaseCOM(mInputLayout);
-	ReleaseCOM(mPointsRS);
 }
 
 bool Exercise_Chapter6_3::Init()
@@ -110,16 +107,6 @@ bool Exercise_Chapter6_3::Init()
 	//BuildGeometryBuffers();
 	BuildFX();
 	BuildVertexLayout();
-
-	D3D11_RASTERIZER_DESC rasterDesc;
-	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.DepthClipEnable = true;
-
-	HR(md3dDevice->CreateRasterizerState(&rasterDesc, &mPointsRS));
-
 	return true;
 }
 
@@ -164,7 +151,6 @@ void Exercise_Chapter6_3::DrawScene()
 	mTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		md3dImmediateContext->RSSetState(mPointsRS);
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mPointsVB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mPointsIB, DXGI_FORMAT_R32_UINT, 0);
 

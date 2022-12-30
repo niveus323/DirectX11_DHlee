@@ -227,7 +227,7 @@ void Exercise_Chapter6_7::BuildGeometryBuffers()
 	{
 		//Cube
 		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Red))   },
-		{ XMFLOAT3(-1.0f, +1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float*)Colors::Black)) },
+		{ XMFLOAT3(-1.0f, +1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Black)) },
 		{ XMFLOAT3(+1.0f, +1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Blue)) },
 		{ XMFLOAT3(+1.0f, -1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Cyan)) },
 		{ XMFLOAT3(-1.0f, -1.0f, +1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Green)) },
@@ -240,7 +240,7 @@ void Exercise_Chapter6_7::BuildGeometryBuffers()
 		{ XMFLOAT3(+1.0f, -1.0f, +1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Green)) },
 		{ XMFLOAT3(+1.0f, -1.0f, -1.0f), Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Green)) },
 		{ XMFLOAT3(0.0f,  1.0f, 0.0f),	 Convert::ArgbToAbgr(XMCOLOR((const float *)Colors::Red)) }
-
+		
 	};
 
 	D3D11_BUFFER_DESC vbd{};

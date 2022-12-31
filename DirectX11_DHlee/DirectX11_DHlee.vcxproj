@@ -183,7 +183,7 @@
     <ClCompile Include="Demos\Chapter 6\WavesApp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="LightDemo.cpp" />
+    <ClCompile Include="Demos\Chapter 7\Exercise Chapter7.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
   <ItemGroup>

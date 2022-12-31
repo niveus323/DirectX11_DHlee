@@ -93,11 +93,11 @@
     <ClCompile Include="Demos\Chapter 6\WavesApp.cpp">
       <Filter>소스 파일\Demos\Chapter 6</Filter>
     </ClCompile>
-    <ClCompile Include="LightDemo.cpp">
-      <Filter>소스 파일\Demos\Chapter 7</Filter>
-    </ClCompile>
     <ClCompile Include="Waves.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 7\Exercise Chapter7.cpp">
+      <Filter>소스 파일\Demos\Chapter 7</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

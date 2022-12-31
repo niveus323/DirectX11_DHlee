@@ -1,5 +1,4 @@
 #include "d3dApp.h"
-#include "d3dx11Effect.h"
 #include "GeometryGenerator.h"
 #include "MathHelper.h"
 
@@ -9,11 +8,11 @@ struct Vertex
 	XMFLOAT4 Color;
 };
 
-class ShapesApp : public D3DApp
+class Exercise_Chapter6_14 : public D3DApp
 {
 public:
-	ShapesApp(HINSTANCE hInstance);
-	~ShapesApp();
+	Exercise_Chapter6_14(HINSTANCE hInstance);
+	~Exercise_Chapter6_14();
 
 	bool Init();
 	void OnResize();
@@ -81,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	ShapesApp theApp(hInstance);
+	Exercise_Chapter6_14 theApp(hInstance);
 
 	if (!theApp.Init())
 		return 0;
@@ -90,12 +89,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 
-ShapesApp::ShapesApp(HINSTANCE hInstance)
+Exercise_Chapter6_14::Exercise_Chapter6_14(HINSTANCE hInstance)
 	: D3DApp(hInstance), mVB(0), mIB(0), mFX(0), mTech(0),
 	mfxWorldViewProj(0), mInputLayout(0), mWireframeRS(0),
 	mTheta(1.5f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(15.0f)
 {
-	mMainWndCaption = TEXT("Shapes Demo");
+	mMainWndCaption = TEXT("연습문제 6장 14번");
 
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
@@ -123,7 +122,7 @@ ShapesApp::ShapesApp(HINSTANCE hInstance)
 	}
 }
 
-ShapesApp::~ShapesApp()
+Exercise_Chapter6_14::~Exercise_Chapter6_14()
 {
 	ReleaseCOM(mVB);
 	ReleaseCOM(mIB);
@@ -132,7 +131,7 @@ ShapesApp::~ShapesApp()
 	ReleaseCOM(mWireframeRS);
 }
 
-bool ShapesApp::Init()
+bool Exercise_Chapter6_14::Init()
 {
 	if (!D3DApp::Init())
 		return false;
@@ -143,7 +142,7 @@ bool ShapesApp::Init()
 
 	D3D11_RASTERIZER_DESC wireframeDesc;
 	ZeroMemory(&wireframeDesc, sizeof(D3D11_RASTERIZER_DESC));
-	wireframeDesc.FillMode = D3D11_FILL_SOLID;
+	wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
 	wireframeDesc.CullMode = D3D11_CULL_BACK;
 	wireframeDesc.FrontCounterClockwise = false;
 	wireframeDesc.DepthClipEnable = true;
@@ -153,7 +152,7 @@ bool ShapesApp::Init()
 	return true;
 }
 
-void ShapesApp::OnResize()
+void Exercise_Chapter6_14::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -161,7 +160,7 @@ void ShapesApp::OnResize()
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void ShapesApp::UpdateScene(float dt)
+void Exercise_Chapter6_14::UpdateScene(float dt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -177,7 +176,7 @@ void ShapesApp::UpdateScene(float dt)
 	XMStoreFloat4x4(&mView, V);
 }
 
-void ShapesApp::DrawScene()
+void Exercise_Chapter6_14::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -242,7 +241,7 @@ void ShapesApp::DrawScene()
 	HR(mSwapChain->Present(0, 0));
 }
 
-void ShapesApp::OnMouseDown(WPARAM btnState, int x, int y)
+void Exercise_Chapter6_14::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -250,12 +249,12 @@ void ShapesApp::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void ShapesApp::OnMouseUp(WPARAM btnState, int x, int y)
+void Exercise_Chapter6_14::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void ShapesApp::OnMouseMove(WPARAM btnState, int x, int y)
+void Exercise_Chapter6_14::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -287,7 +286,7 @@ void ShapesApp::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void ShapesApp::BuildGeometryBuffers()
+void Exercise_Chapter6_14::BuildGeometryBuffers()
 {
 	GeometryGenerator::MeshData box;
 	GeometryGenerator::MeshData grid;
@@ -297,8 +296,7 @@ void ShapesApp::BuildGeometryBuffers()
 	GeometryGenerator geoGen;
 	geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
 	geoGen.CreateGrid(20.0f, 30.0f, 60, 40, grid);
-	geoGen.CreateSphere(0.5f, 20, 20, sphere);
-	//geoGen.CreateGeosphere(0.5f, 2, sphere);
+	geoGen.CreateGeosphere(0.5f, 5, sphere);
 	geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, cylinder);
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
@@ -345,7 +343,7 @@ void ShapesApp::BuildGeometryBuffers()
 	{
 		vertices[k].Pos = box.Vertices[i].Position;
 		vertices[k].Color = Convert::ToXmFloat4(Colors::Red);
-		
+
 	}
 
 	for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
@@ -397,7 +395,7 @@ void ShapesApp::BuildGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 }
 
-void ShapesApp::BuildFX()
+void Exercise_Chapter6_14::BuildFX()
 {
 	std::ifstream fin("../Fx/color.fxo", std::ios::binary);
 
@@ -416,7 +414,7 @@ void ShapesApp::BuildFX()
 	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 }
 
-void ShapesApp::BuildVertexLayout()
+void Exercise_Chapter6_14::BuildVertexLayout()
 {
 	// Create the vertex input layout.
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =

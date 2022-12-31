@@ -4,6 +4,7 @@
 
 #include"GameTimer.h"
 #include"d3dUtil.h"
+#include "d3dx11effect.h"
 
 class D3DApp
 {

@@ -1,8 +1,6 @@
 #include "d3dApp.h"
 #include "GeometryGenerator.h"
 #include "MathHelper.h"
-#include "d3dx11effect.h"
-
 
 struct Vertex
 {
@@ -10,11 +8,11 @@ struct Vertex
 	XMFLOAT4 Color;
 };
 
-class Exercise_Chapter6_11 : public D3DApp
+class SkullApp : public D3DApp
 {
 public:
-	Exercise_Chapter6_11(HINSTANCE hInstance);
-	~Exercise_Chapter6_11();
+	SkullApp(HINSTANCE hInstance);
+	~SkullApp();
 
 	bool Init();
 	void OnResize();
@@ -65,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	Exercise_Chapter6_11 theApp(hInstance);
+	SkullApp theApp(hInstance);
 
 	if (!theApp.Init())
 		return 0;
@@ -74,7 +72,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 
-Exercise_Chapter6_11::Exercise_Chapter6_11(HINSTANCE hInstance)
+SkullApp::SkullApp(HINSTANCE hInstance)
 	: D3DApp(hInstance),
 	mVB(0),
 	mIB(0),
@@ -88,7 +86,7 @@ Exercise_Chapter6_11::Exercise_Chapter6_11(HINSTANCE hInstance)
 	mPhi(0.1f * MathHelper::Pi),
 	mRadius(20.0f)
 {
-	mMainWndCaption = TEXT("연습문제 6장 11번~13번");
+	mMainWndCaption = L"Skull Demo";
 
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
@@ -99,12 +97,9 @@ Exercise_Chapter6_11::Exercise_Chapter6_11(HINSTANCE hInstance)
 
 	XMMATRIX T = XMMatrixTranslation(0.0f, -2.0f, 0.0f);
 	XMStoreFloat4x4(&mSkullWorld, T);
-
-	mScreenViewport.Width = 300.0f;
-	mScreenViewport.Height = 300.0f;
 }
 
-Exercise_Chapter6_11::~Exercise_Chapter6_11()
+SkullApp::~SkullApp()
 {
 	ReleaseCOM(mVB);
 	ReleaseCOM(mIB);
@@ -113,7 +108,7 @@ Exercise_Chapter6_11::~Exercise_Chapter6_11()
 	ReleaseCOM(mWireframeRS);
 }
 
-bool Exercise_Chapter6_11::Init()
+bool SkullApp::Init()
 {
 	if (!D3DApp::Init())
 		return false;
@@ -122,39 +117,27 @@ bool Exercise_Chapter6_11::Init()
 	BuildFX();
 	BuildVertexLayout();
 
-	D3D11_RASTERIZER_DESC rsDesc;
-	ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
-	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
-	rsDesc.CullMode = D3D11_CULL_BACK;
-	rsDesc.FrontCounterClockwise = false;
-	rsDesc.DepthClipEnable = true;
-	rsDesc.ScissorEnable = true;
-	
-	D3D11_RECT scissorRect = { 0,0,200,200 };
-	md3dImmediateContext->RSSetScissorRects(1, &scissorRect);
+	D3D11_RASTERIZER_DESC wireframeDesc;
+	ZeroMemory(&wireframeDesc, sizeof(D3D11_RASTERIZER_DESC));
+	wireframeDesc.FillMode = D3D11_FILL_SOLID;
+	wireframeDesc.CullMode = D3D11_CULL_BACK;
+	wireframeDesc.FrontCounterClockwise = false;
+	wireframeDesc.DepthClipEnable = true;
 
-	HR(md3dDevice->CreateRasterizerState(&rsDesc, &mWireframeRS));
+	HR(md3dDevice->CreateRasterizerState(&wireframeDesc, &mWireframeRS));
 
 	return true;
 }
 
-void Exercise_Chapter6_11::OnResize()
+void SkullApp::OnResize()
 {
 	D3DApp::OnResize();
 
-	mScreenViewport.Width = 300.0f;
-	mScreenViewport.Height = 300.0f;
-	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
-
 	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 	XMStoreFloat4x4(&mProj, P);
-
-
-	D3D11_RECT rects = { 0,0,200,200 };
-	md3dImmediateContext->RSSetScissorRects(1, &rects);
 }
 
-void Exercise_Chapter6_11::UpdateScene(float dt)
+void SkullApp::UpdateScene(float dt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -170,7 +153,7 @@ void Exercise_Chapter6_11::UpdateScene(float dt)
 	XMStoreFloat4x4(&mView, V);
 }
 
-void Exercise_Chapter6_11::DrawScene()
+void SkullApp::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -202,11 +185,10 @@ void Exercise_Chapter6_11::DrawScene()
 		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 	}
 
-
 	HR(mSwapChain->Present(0, 0));
 }
 
-void Exercise_Chapter6_11::OnMouseDown(WPARAM btnState, int x, int y)
+void SkullApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -214,12 +196,12 @@ void Exercise_Chapter6_11::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void Exercise_Chapter6_11::OnMouseUp(WPARAM btnState, int x, int y)
+void SkullApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void Exercise_Chapter6_11::OnMouseMove(WPARAM btnState, int x, int y)
+void SkullApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -251,7 +233,7 @@ void Exercise_Chapter6_11::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void Exercise_Chapter6_11::BuildGeometryBuffers()
+void SkullApp::BuildGeometryBuffers()
 {
 	std::ifstream fin("../Models/skull.txt");
 
@@ -321,7 +303,7 @@ void Exercise_Chapter6_11::BuildGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 }
 
-void Exercise_Chapter6_11::BuildFX()
+void SkullApp::BuildFX()
 {
 	std::ifstream fin("../Fx/color.fxo", std::ios::binary);
 
@@ -339,13 +321,13 @@ void Exercise_Chapter6_11::BuildFX()
 	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 }
 
-void Exercise_Chapter6_11::BuildVertexLayout()
+void SkullApp::BuildVertexLayout()
 {
 	// Create the vertex input layout.
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// Create the input layout

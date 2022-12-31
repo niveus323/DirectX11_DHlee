@@ -1,6 +1,5 @@
 #include "d3dApp.h"
 #include "MathHelper.h"
-#include "d3dx11effect.h"
 
 struct Vertex
 {

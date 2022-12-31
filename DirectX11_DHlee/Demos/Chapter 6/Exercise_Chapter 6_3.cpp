@@ -1,6 +1,5 @@
 #include "d3dApp.h"
 #include "d3dUtil.h"
-#include "d3dx11effect.h"
 #include "MathHelper.h"
 #include "GeometryGenerator.h"
 #include "resource.h"

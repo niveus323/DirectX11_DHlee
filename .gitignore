@@ -361,3 +361,17 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/DirectX11_DHlee/LightingDemo.cpp
+/Common/LightHelper.cpp
+/Common/LightHelper.h
+/DirectX11_DHlee/LightDemo.cpp
+/FX/CartoonRendering.fxo
+/FX/CartoonRendering.fx
+/FX/CartoonRendering.cod
+/FX/Lighting.fxo
+/FX/Lighting.fx
+/FX/Lighting.cod
+/FX/LightHelper.fxo
+/FX/LightHelper.fx
+/FX/LightHelper.cod
+/.gitignore

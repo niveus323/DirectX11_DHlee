@@ -2,9 +2,8 @@
 #ifndef D3DAPP_H
 #define D3DAPP_H
 
-#include"GameTimer.h"
-#include"d3dUtil.h"
-#include "d3dx11effect.h"
+#include "GameTimer.h"
+#include "d3dUtil.h"
 
 class D3DApp
 {

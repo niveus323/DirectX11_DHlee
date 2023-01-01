@@ -183,7 +183,17 @@
     <ClCompile Include="Demos\Chapter 6\WavesApp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Demos\Chapter 7\Exercise Chapter7.cpp" />
+    <ClCompile Include="Demos\Chapter 7\Exercise Chapter7.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_1.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\TexturedHillAndWavesDemo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +207,8 @@
     <ClInclude Include="..\Common\LightHelper.h" />
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\resource.h" />
+    <ClInclude Include="Effects.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
@@ -261,6 +273,17 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\FX\CartoonRendering.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc compile for release: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\FX\Basic.fx">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for debug: %(FullPath)</Message>

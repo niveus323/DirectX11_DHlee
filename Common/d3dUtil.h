@@ -8,6 +8,7 @@
 
 #include <string>
 #include <d3d11.h>
+#include "d3dx11effect.h"
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
@@ -20,6 +21,7 @@
 #include <vector>
 #include "MathHelper.h"
 #include "DDSTextureLoader11.h"
+#include "LightHelper.h"
 using namespace DirectX;
 
 

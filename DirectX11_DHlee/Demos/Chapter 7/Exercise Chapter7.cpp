@@ -1,7 +1,5 @@
 #include "d3dApp.h"
 #include "GeometryGenerator.h"
-#include "MathHelper.h"
-#include "LightHelper.h"
 #include "Waves.h"
 
 

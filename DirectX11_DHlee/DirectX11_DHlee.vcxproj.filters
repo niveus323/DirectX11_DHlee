@@ -31,6 +31,9 @@
     <Filter Include="소스 파일\Demos\Chapter 7">
       <UniqueIdentifier>{a8659b03-3fb0-4320-825e-08e6e79526fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Demos\Chapter 8">
+      <UniqueIdentifier>{44e62c56-3f25-4085-888b-0488c965c829}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\d3dApp.cpp">
@@ -99,6 +102,18 @@
     <ClCompile Include="Demos\Chapter 7\Exercise Chapter7.cpp">
       <Filter>소스 파일\Demos\Chapter 7</Filter>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_1.cpp">
+      <Filter>소스 파일\Demos\Chapter 8</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Effects.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\TexturedHillAndWavesDemo.cpp">
+      <Filter>소스 파일\Demos\Chapter 8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\d3dApp.h">
@@ -131,8 +146,14 @@
     <ClInclude Include="..\Common\LightHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Waves.h">
-      <Filter>소스 파일</Filter>
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Effects.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +170,9 @@
       <Filter>FX</Filter>
     </CustomBuild>
     <CustomBuild Include="..\FX\CartoonRendering.fx">
+      <Filter>FX</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\FX\Basic.fx">
       <Filter>FX</Filter>
     </CustomBuild>
   </ItemGroup>

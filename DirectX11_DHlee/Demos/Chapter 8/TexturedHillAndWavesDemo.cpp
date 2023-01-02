@@ -140,7 +140,7 @@ bool TexturedHillsAndWavesApp::Init()
 	mWaves.Init(160, 160, 1.0f, 0.03f, 3.25f, 0.4f);
 
 	// Must init Effects first since InputLayouts depend on shader signatures.
-	Effects::InitAll(md3dDevice);
+	Effects::InitAll(md3dDevice, TEXT("Basic.fxo"));
 	InputLayouts::InitAll(md3dDevice);
 
 	//Windows 8 이후 이미지파일 -> Texture2D 객체 -> ShaderResourceView 생성을 CreateDDSTextureFromFile이 수행

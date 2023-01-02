@@ -2,12 +2,14 @@
 #include "GeometryGenerator.h"
 #include "Effects.h"
 #include "Vertex.h"
+#include "DirectXTex.h"
+using std::wstring;
 
-class Exercise_Chapter8_1 : public D3DApp
+class Exercise_Chapter8_5 : public D3DApp
 {
 public:
-	Exercise_Chapter8_1(HINSTANCE hInstance);
-	~Exercise_Chapter8_1();
+	Exercise_Chapter8_5(HINSTANCE hInstance);
+	~Exercise_Chapter8_5();
 
 	bool Init();
 	void OnResize();
@@ -20,13 +22,14 @@ public:
 
 private:
 	void BuildGeometryBuffers();
+	void LoadTexture(wstring path, wstring name, wstring extention, int maxAnimFrame);
+	void UpdateAnimation(float playRate);
 
 private:
 	ID3D11Buffer* mBoxVB;
 	ID3D11Buffer* mBoxIB;
 
-	ID3D11ShaderResourceView* mDiffuseMapSRV;
-	ID3D11SamplerState* mSamplerState;
+	ID3D11ShaderResourceView* mTexture;
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
@@ -48,6 +51,11 @@ private:
 	float mRadius;
 
 	POINT mLastMousePos;
+
+	ScratchImage* image;
+	int fireAnimCount;
+	float fireAnimFrame;
+	int fireAnimMaxCount;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -58,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	Exercise_Chapter8_1 theApp(hInstance);
+	Exercise_Chapter8_5 theApp(hInstance);
 
 	if (!theApp.Init())
 		return 0;
@@ -67,22 +75,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 
-Exercise_Chapter8_1::Exercise_Chapter8_1(HINSTANCE hInstance)
-	: D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f),
-	mTheta(1.3f * MathHelper::Pi), mPhi(0.4f * MathHelper::Pi), mRadius(2.5f)
+Exercise_Chapter8_5::Exercise_Chapter8_5(HINSTANCE hInstance)
+	: D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mEyePosW(0.0f, 0.0f, 0.0f),
+	mTheta(1.3f * MathHelper::Pi), mPhi(0.4f * MathHelper::Pi), mRadius(2.5f),
+	fireAnimMaxCount(120)
 {
-	mMainWndCaption = TEXT("Crate Demo");
+	mMainWndCaption = TEXT("8장 연습문제 5번");
 
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mBoxWorld, I);
-	//연습문제 1 텍스쳐 이동변환, 크기변환 수행
-	//XMMATRIX crateScaling = XMMatrixScaling(3.0f, 3.0f, 0.0f);
-	//XMMATRIX crateMove = XMMatrixTranslation(-0.5f, -0.5f, 0.0f);
-	//XMStoreFloat4x4(&mTexTransform, crateScaling*crateMove);
-
 	XMStoreFloat4x4(&mTexTransform, I);
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
@@ -102,17 +106,16 @@ Exercise_Chapter8_1::Exercise_Chapter8_1(HINSTANCE hInstance)
 	mBoxMat.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 16.0f);
 }
 
-Exercise_Chapter8_1::~Exercise_Chapter8_1()
+Exercise_Chapter8_5::~Exercise_Chapter8_5()
 {
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
-	ReleaseCOM(mDiffuseMapSRV);
-
+	ReleaseCOM(mTexture);
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
 }
 
-bool Exercise_Chapter8_1::Init()
+bool Exercise_Chapter8_5::Init()
 {
 	if (!D3DApp::Init())
 		return false;
@@ -121,39 +124,14 @@ bool Exercise_Chapter8_1::Init()
 	Effects::InitAll(md3dDevice, TEXT("Basic.fxo"));
 	InputLayouts::InitAll(md3dDevice);
 
-
-	//Windows 8 이후 D3DX11CreateShaderResourceViewFromFile 대신 DirectXTex의 CreateDDSTextureFromFile을 사용
-	ID3D11Resource* texResource = nullptr;
-
-	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/mipmaps.dds"), &texResource, &mDiffuseMapSRV));
-
-	ReleaseCOM(texResource);
-
-	// 연습문제 2 - MIPMAP은 DirectX 텍스처 도구에 의하여 밉맵 사슬을 탑재한 리소스를 만들 수 있고, 밉맵 사슬이 탑재되어 있다면 하드웨어가 자동으로 처리해준다.
-	// 만약 밉맵 사슬이 탑재되있지않은 단순텍스트일경우 ID3D11ShaderResourceView의 GenerateMips를 사용하여 밉맵 사슬을 생성한다.
-	
-	
-	//연습문제 1
-	//D3D11_SAMPLER_DESC samplerDesc;
-	//ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	//samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	//samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	//samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	////samplerDesc.BorderColor[0] = 0.0f;
-	////samplerDesc.BorderColor[1] = 0.0f;
-	////samplerDesc.BorderColor[2] = 1.0f;
-	////samplerDesc.BorderColor[3] = 1.0f;
-	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	//samplerDesc.MaxAnisotropy = 4;
-
-	//HR(md3dDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
+	LoadTexture(TEXT("../Textures/FireAnim/"), TEXT("Fire"), TEXT(".bmp"), 120);
 
 	BuildGeometryBuffers();
 
 	return true;
 }
 
-void Exercise_Chapter8_1::OnResize()
+void Exercise_Chapter8_5::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -161,7 +139,7 @@ void Exercise_Chapter8_1::OnResize()
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void Exercise_Chapter8_1::UpdateScene(float dt)
+void Exercise_Chapter8_5::UpdateScene(float dt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -177,17 +155,17 @@ void Exercise_Chapter8_1::UpdateScene(float dt)
 
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
+	UpdateAnimation(4);
+
 }
 
-void Exercise_Chapter8_1::DrawScene()
+void Exercise_Chapter8_5::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	md3dImmediateContext->PSSetSamplers(0, 1, &mSamplerState);
 
 	UINT stride = sizeof(Vertex::Basic32);
 	UINT offset = 0;
@@ -219,8 +197,7 @@ void Exercise_Chapter8_1::DrawScene()
 		Effects::BasicFX->SetWorldViewProj(worldViewProj);
 		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
 		Effects::BasicFX->SetMaterial(mBoxMat);
-		Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
-		Effects::BasicFX->SetSamplerstate(mSamplerState);
+		Effects::BasicFX->SetDiffuseMap(mTexture);
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
@@ -230,7 +207,7 @@ void Exercise_Chapter8_1::DrawScene()
 	HR(mSwapChain->Present(0, 0));
 }
 
-void Exercise_Chapter8_1::OnMouseDown(WPARAM btnState, int x, int y)
+void Exercise_Chapter8_5::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -238,12 +215,12 @@ void Exercise_Chapter8_1::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void Exercise_Chapter8_1::OnMouseUp(WPARAM btnState, int x, int y)
+void Exercise_Chapter8_5::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void Exercise_Chapter8_1::OnMouseMove(WPARAM btnState, int x, int y)
+void Exercise_Chapter8_5::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -275,7 +252,7 @@ void Exercise_Chapter8_1::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void Exercise_Chapter8_1::BuildGeometryBuffers()
+void Exercise_Chapter8_5::BuildGeometryBuffers()
 {
 	GeometryGenerator::MeshData box;
 
@@ -310,13 +287,13 @@ void Exercise_Chapter8_1::BuildGeometryBuffers()
 		vertices[k].Tex = box.Vertices[i].TexC;
 	}
 
-	D3D11_BUFFER_DESC vbd;
+	D3D11_BUFFER_DESC vbd{};
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::Basic32) * totalVertexCount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
+	D3D11_SUBRESOURCE_DATA vinitData{};
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mBoxVB));
 
@@ -327,14 +304,45 @@ void Exercise_Chapter8_1::BuildGeometryBuffers()
 	std::vector<UINT> indices;
 	indices.insert(indices.end(), box.Indices.begin(), box.Indices.end());
 
-	D3D11_BUFFER_DESC ibd;
+	D3D11_BUFFER_DESC ibd{};
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
 	ibd.ByteWidth = sizeof(UINT) * totalIndexCount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
+	D3D11_SUBRESOURCE_DATA iinitData{};
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoxIB));
 }
 
+void Exercise_Chapter8_5::LoadTexture(wstring path, wstring name , wstring extention, int maxAnimFrame)
+{
+	image = new ScratchImage[maxAnimFrame];
+
+	HR(CoInitializeEx(nullptr, COINITBASE_MULTITHREADED));
+
+	for (int i = 1; i <= maxAnimFrame; i++)
+	{
+		wstring numStr = ((i < 100) ? (i < 10 ? TEXT("00") : TEXT("0")) : TEXT("")) + std::to_wstring(i);
+		wstring fileStr = path + name + numStr + extention;
+
+		LoadFromWICFile(fileStr.c_str(), WIC_FLAGS_NONE, nullptr, image[i - 1]);
+	}
+
+	CreateShaderResourceView(md3dDevice, image[0].GetImages(), image[0].GetImageCount(), image[0].GetMetadata(), &mTexture);
+
+}
+
+void Exercise_Chapter8_5::UpdateAnimation(float playRate)
+{
+	float frameInterval = playRate/ fireAnimMaxCount;
+	fireAnimFrame += mTimer.DeltaTime();
+	
+	if (fireAnimFrame >= frameInterval)
+	{
+		fireAnimFrame = 0;
+		CreateShaderResourceView(md3dDevice, image[fireAnimCount].GetImages(), image[fireAnimCount].GetImageCount(), image[fireAnimCount].GetMetadata(), &mTexture);
+		++fireAnimCount;
+		if (fireAnimCount == fireAnimMaxCount)	fireAnimCount = 0;
+	}
+}

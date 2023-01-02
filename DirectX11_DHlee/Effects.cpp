@@ -61,9 +61,11 @@ BasicEffect::~BasicEffect()
 
 BasicEffect* Effects::BasicFX = 0;
 
-void Effects::InitAll(ID3D11Device* device)
+void Effects::InitAll(ID3D11Device* device, std::wstring filename)
 {
-	BasicFX = new BasicEffect(device, TEXT("../FX/Basic.fxo"));
+	std::wstring filedir = TEXT("../FX/");
+
+	BasicFX = new BasicEffect(device, filedir.append(filename));
 }
 
 void Effects::DestroyAll()

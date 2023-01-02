@@ -129,18 +129,6 @@ void Exercise_Chapter6_6::UpdateScene(float dt)
 
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
-
-	//
-
-	//D3D11_MAPPED_SUBRESOURCE mappedData;
-	//HR(md3dImmediateContext->Map(mBoxVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
-
-	//Vertex* v = reinterpret_cast<Vertex*>(mappedData.pData);
-	//for (UINT i = 0; i < 36; i++)
-	//{
-	//	v[i].Pos = mCurVertexPositions[i];
-	//}
-	//md3dImmediateContext->Unmap(mBoxVB, 0);
 }
 
 void Exercise_Chapter6_6::DrawScene()

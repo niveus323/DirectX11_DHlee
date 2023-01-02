@@ -114,6 +114,15 @@
     <ClCompile Include="Demos\Chapter 8\TexturedHillAndWavesDemo.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
+    <ClCompile Include="Exercise_Chapter 8_3.cpp">
+      <Filter>소스 파일\Demos\Chapter 8</Filter>
+    </ClCompile>
+    <ClCompile Include="Exercise_Chapter 8_5.cpp">
+      <Filter>소스 파일\Demos\Chapter 8</Filter>
+    </ClCompile>
+    <ClCompile Include="Exercise_Chapter 8_7.cpp">
+      <Filter>소스 파일\Demos\Chapter 8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\d3dApp.h">
@@ -155,6 +164,9 @@
     <ClInclude Include="Effects.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\DirectXTex.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\FX\color.fx">
@@ -173,6 +185,9 @@
       <Filter>FX</Filter>
     </CustomBuild>
     <CustomBuild Include="..\FX\Basic.fx">
+      <Filter>FX</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\FX\Multitexturing.fx">
       <Filter>FX</Filter>
     </CustomBuild>
   </ItemGroup>

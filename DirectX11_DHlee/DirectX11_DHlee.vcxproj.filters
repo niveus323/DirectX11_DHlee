@@ -34,6 +34,9 @@
     <Filter Include="소스 파일\Demos\Chapter 8">
       <UniqueIdentifier>{44e62c56-3f25-4085-888b-0488c965c829}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Demos\Chapter 9">
+      <UniqueIdentifier>{a2d3a3ee-ce62-4650-a7ab-129bdb7d9f58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\d3dApp.cpp">
@@ -114,13 +117,13 @@
     <ClCompile Include="Demos\Chapter 8\TexturedHillAndWavesDemo.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
-    <ClCompile Include="Exercise_Chapter 8_3.cpp">
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_3.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
-    <ClCompile Include="Exercise_Chapter 8_5.cpp">
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_5.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
-    <ClCompile Include="Exercise_Chapter 8_7.cpp">
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_7.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
   </ItemGroup>

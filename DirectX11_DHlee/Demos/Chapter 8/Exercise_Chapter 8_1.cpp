@@ -125,12 +125,14 @@ bool Exercise_Chapter8_1::Init()
 	//Windows 8 이후 D3DX11CreateShaderResourceViewFromFile 대신 DirectXTex의 CreateDDSTextureFromFile을 사용
 	ID3D11Resource* texResource = nullptr;
 
-	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/mipmaps.dds"), &texResource, &mDiffuseMapSRV));
-
-	ReleaseCOM(texResource);
-
 	// 연습문제 2 - MIPMAP은 DirectX 텍스처 도구에 의하여 밉맵 사슬을 탑재한 리소스를 만들 수 있고, 밉맵 사슬이 탑재되어 있다면 하드웨어가 자동으로 처리해준다.
 	// 만약 밉맵 사슬이 탑재되있지않은 단순텍스트일경우 ID3D11ShaderResourceView의 GenerateMips를 사용하여 밉맵 사슬을 생성한다.
+
+	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/mipmaps.dds"), &texResource, &mDiffuseMapSRV));
+	
+	ReleaseCOM(texResource);
+
+	
 	
 	
 	//연습문제 1

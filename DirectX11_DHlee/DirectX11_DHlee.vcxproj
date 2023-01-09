@@ -199,7 +199,9 @@
     <ClCompile Include="Exercise_Chapter 8_5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Exercise_Chapter 8_7.cpp" />
+    <ClCompile Include="Exercise_Chapter 8_7.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>

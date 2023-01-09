@@ -164,6 +164,8 @@ Exercise_Chapter8_7::Exercise_Chapter8_7(HINSTANCE hInstance)
 	mSkullMat.Ambient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	mSkullMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	mSkullMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+
+	
 }
 
 Exercise_Chapter8_7::~Exercise_Chapter8_7()
@@ -175,7 +177,6 @@ Exercise_Chapter8_7::~Exercise_Chapter8_7()
 	ReleaseCOM(mSphereSRV);
 	ReleaseCOM(mCylSRV);
 	ReleaseCOM(mGridSRV);
-
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
@@ -279,18 +280,19 @@ void Exercise_Chapter8_7::DrawScene()
 	Effects::BasicFX->SetDirLights(mDirLights);
 	Effects::BasicFX->SetEyePosW(mEyePosW);
 
-	// Figure out which technique to use.
-	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light1Tech;
+	// Basic.fx에서는 Texture 사용 여부에 따라 샘플링 사용을 결정한다.
+	// Texture를 사용한다면 EffectTechnique를 TexTech로 변경해주어야함.
+	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light1TexTech;
 	switch (mLightCount)
 	{
 	case 1:
-		activeTech = Effects::BasicFX->Light1Tech;
+		activeTech = Effects::BasicFX->Light1TexTech;
 		break;
 	case 2:
-		activeTech = Effects::BasicFX->Light2Tech;
+		activeTech = Effects::BasicFX->Light2TexTech;
 		break;
 	case 3:
-		activeTech = Effects::BasicFX->Light3Tech;
+		activeTech = Effects::BasicFX->Light3TexTech;
 		break;
 	}
 

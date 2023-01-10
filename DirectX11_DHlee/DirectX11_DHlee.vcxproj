@@ -189,13 +189,27 @@
     <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_1.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_3.cpp" />
-    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_5.cpp" />
-    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_7.cpp" />
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_5.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_7.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Demos\Chapter 8\TexturedHillAndWavesDemo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_1.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_6.cpp" />
     <ClCompile Include="Effects.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
@@ -212,6 +226,7 @@
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\resource.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>

@@ -126,6 +126,18 @@
     <ClCompile Include="Demos\Chapter 8\Exercise_Chapter 8_7.cpp">
       <Filter>소스 파일\Demos\Chapter 8</Filter>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_1.cpp">
+      <Filter>소스 파일\Demos\Chapter 9</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStates.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_2.cpp">
+      <Filter>소스 파일\Demos\Chapter 9</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_6.cpp">
+      <Filter>소스 파일\Demos\Chapter 9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\d3dApp.h">
@@ -169,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="..\Common\DirectXTex.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStates.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

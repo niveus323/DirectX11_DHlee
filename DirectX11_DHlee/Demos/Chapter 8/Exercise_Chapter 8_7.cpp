@@ -518,13 +518,13 @@ void Exercise_Chapter8_7::BuildShapeGeometryBuffers()
 		vertices[k].Tex = cylinder.Vertices[i].TexC;
 	}
 
-	D3D11_BUFFER_DESC vbd;
+	D3D11_BUFFER_DESC vbd{};
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::Basic32) * totalVertexCount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
+	D3D11_SUBRESOURCE_DATA vinitData{};
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mShapesVB));
 
@@ -538,13 +538,13 @@ void Exercise_Chapter8_7::BuildShapeGeometryBuffers()
 	indices.insert(indices.end(), sphere.Indices.begin(), sphere.Indices.end());
 	indices.insert(indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
 
-	D3D11_BUFFER_DESC ibd;
+	D3D11_BUFFER_DESC ibd{};
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
 	ibd.ByteWidth = sizeof(UINT) * totalIndexCount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
+	D3D11_SUBRESOURCE_DATA iinitData{};
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
 }
@@ -587,13 +587,13 @@ void Exercise_Chapter8_7::BuildSkullGeometryBuffers()
 
 	fin.close();
 
-	D3D11_BUFFER_DESC vbd;
+	D3D11_BUFFER_DESC vbd{};
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
 	vbd.ByteWidth = sizeof(Vertex::Basic32) * vcount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
+	D3D11_SUBRESOURCE_DATA vinitData{};
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mSkullVB));
 
@@ -601,13 +601,13 @@ void Exercise_Chapter8_7::BuildSkullGeometryBuffers()
 	// Pack the indices of all the meshes into one index buffer.
 	//
 
-	D3D11_BUFFER_DESC ibd;
+	D3D11_BUFFER_DESC ibd{};
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
 	ibd.ByteWidth = sizeof(UINT) * mSkullIndexCount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
+	D3D11_SUBRESOURCE_DATA iinitData{};
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mSkullIB));
 }

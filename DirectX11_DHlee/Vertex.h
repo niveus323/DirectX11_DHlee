@@ -8,6 +8,12 @@ namespace Vertex
 	// Basic 32-byte vertex structure.
 	struct Basic32
 	{
+		Basic32() : Pos(0.0f, 0.0f, 0.0f), Normal(0.0f, 0.0f, 0.0f), Tex(0.0f, 0.0f) {}
+		Basic32(const XMFLOAT3& p, const XMFLOAT3& n, const XMFLOAT2& uv)
+			: Pos(p), Normal(n), Tex(uv) {}
+		Basic32(float px, float py, float pz, float nx, float ny, float nz, float u, float v)
+			: Pos(px, py, pz), Normal(nx, ny, nz), Tex(u, v) {}
+
 		XMFLOAT3 Pos;
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;

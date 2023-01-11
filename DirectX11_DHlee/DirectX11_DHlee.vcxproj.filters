@@ -37,6 +37,9 @@
     <Filter Include="소스 파일\Demos\Chapter 9">
       <UniqueIdentifier>{a2d3a3ee-ce62-4650-a7ab-129bdb7d9f58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Demos\Chapter 10">
+      <UniqueIdentifier>{4ecd08dd-ee98-49e7-b456-895ef1e22a0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\d3dApp.cpp">
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="Demos\Chapter 9\Exercise_Chapter 9_6.cpp">
       <Filter>소스 파일\Demos\Chapter 9</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_3.cpp">
+      <Filter>소스 파일\Demos\Chapter 10</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

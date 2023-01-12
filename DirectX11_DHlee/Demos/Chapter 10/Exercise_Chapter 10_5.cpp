@@ -12,11 +12,11 @@ enum RenderOptions
 	TexturesAndFog = 2
 };
 
-class Exercise_Chapter10_3 : public D3DApp
+class Exercise_Chapter10_5 : public D3DApp
 {
 public:
-	Exercise_Chapter10_3(HINSTANCE hInstance);
-	~Exercise_Chapter10_3();
+	Exercise_Chapter10_5(HINSTANCE hInstance);
+	~Exercise_Chapter10_5();
 
 	bool Init();
 	void OnResize();
@@ -42,6 +42,7 @@ private:
 	ID3D11ShaderResourceView* mMirrorDiffuseMapSRV;
 
 	ID3D11SamplerState* mSamplerState;
+	ID3D11DepthStencilState* mWallDSS;
 
 	DirectionalLight mDirLights[3];
 	Material mRoomMat;
@@ -77,7 +78,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	Exercise_Chapter10_3 theApp(hInstance);
+	Exercise_Chapter10_5 theApp(hInstance);
 
 	if (!theApp.Init())
 		return 0;
@@ -85,13 +86,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	return theApp.Run();
 }
 
-Exercise_Chapter10_3::Exercise_Chapter10_3(HINSTANCE hInstance)
+Exercise_Chapter10_5::Exercise_Chapter10_5(HINSTANCE hInstance)
 	: D3DApp(hInstance), mRoomVB(0), mSkullVB(0), mSkullIB(0), mSkullIndexCount(0), mSkullTranslation(0.0f, 1.0f, -5.0f),
 	mFloorDiffuseMapSRV(0), mWallDiffuseMapSRV(0), mMirrorDiffuseMapSRV(0), mSamplerState(0),
 	mEyePosW(0.0f, 0.0f, 0.0f), mRenderOptions(RenderOptions::Textures),
 	mTheta(1.24f * MathHelper::Pi), mPhi(0.42f * MathHelper::Pi), mRadius(12.0f)
 {
-	mMainWndCaption = TEXT("연습문제 10장 3~4번");
+	mMainWndCaption = TEXT("연습문제 10장 5~6번");
 	mEnable4xMsaa = false;
 
 	mLastMousePos.x = 0;
@@ -135,7 +136,7 @@ Exercise_Chapter10_3::Exercise_Chapter10_3(HINSTANCE hInstance)
 	mShadowMat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
 }
 
-Exercise_Chapter10_3::~Exercise_Chapter10_3()
+Exercise_Chapter10_5::~Exercise_Chapter10_5()
 {
 	md3dImmediateContext->ClearState();
 	ReleaseCOM(mRoomVB);
@@ -151,7 +152,7 @@ Exercise_Chapter10_3::~Exercise_Chapter10_3()
 	RenderStates::DestroyAll();
 }
 
-bool Exercise_Chapter10_3::Init()
+bool Exercise_Chapter10_5::Init()
 {
 	if (!D3DApp::Init())
 		return false;
@@ -179,34 +180,27 @@ bool Exercise_Chapter10_3::Init()
 
 	HR(md3dDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
-	//연습문제 3 - 반사된 오브젝트의 스텐실 판정을 하지 않으면 모든 픽셀이 후면 버퍼에 그려짐
-	D3D11_DEPTH_STENCIL_DESC drawReflectionDesc;
-	drawReflectionDesc.DepthEnable = true;
-	drawReflectionDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	drawReflectionDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	drawReflectionDesc.StencilEnable = false;
-	drawReflectionDesc.StencilReadMask = 0xff;
-	drawReflectionDesc.StencilWriteMask = 0xff;
+	//연습문제 5 
+	// 깊이 버퍼를 사용하지 않은 벽은 나중에 그려진 오브젝트(반사된 두개골)에 의해 픽셀들이 가려진다.
+	// 반면 반사된 두개골은 깊이 버퍼를 사용하므로 나중에 그려진 오브젝트와 관계 없이 깊이 버퍼 값에 의해 그려질 필셀이 결정됨
+	D3D11_DEPTH_STENCIL_DESC wallDSD{};
+	wallDSD.DepthEnable = false;
+	wallDSD.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	wallDSD.DepthFunc = D3D11_COMPARISON_LESS;
+	wallDSD.StencilEnable = false;
+	HR(md3dDevice->CreateDepthStencilState(&wallDSD, &mWallDSS));
 
-	drawReflectionDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+	D3D11_DEPTH_STENCIL_DESC skullDSD = {};
+	RenderStates::DrawReflectionDSS->GetDesc(&skullDSD);
+	skullDSD.StencilEnable = false;
+	HR(md3dDevice->CreateDepthStencilState(&skullDSD, &RenderStates::DrawReflectionDSS));
 
-	drawReflectionDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	drawReflectionDesc.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
-
-	HR(md3dDevice->CreateDepthStencilState(&drawReflectionDesc, &RenderStates::DrawReflectionDSS));
-
-	//연습문제 4 - 그림자를 렌더링할 때에도 스텐실 버퍼를 사용. 그림자의 버퍼를 그릴 때 모두 그리게 하면 삼각형이 겹치는 부분에서 이중 혼합이 발생하게 된다
-	D3D11_DEPTH_STENCIL_DESC doubleBlendDesc{};
-	doubleBlendDesc.DepthEnable = true;
-	doubleBlendDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	doubleBlendDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	doubleBlendDesc.StencilEnable = false;
-	HR(md3dDevice->CreateDepthStencilState(&doubleBlendDesc, &RenderStates::NoDoubleBlendDSS));
+	//연습문제 6
+	//반사된 삼각형은 순서가 바뀌지 않으므로 CULL_FRONT 설정 시 삼각형의 면이 안쪽에서 보이도록 그려지게 됨
+	D3D11_RASTERIZER_DESC skullRD = {};
+	RenderStates::CullClockwiseRS->GetDesc(&skullRD);
+	skullRD.CullMode = D3D11_CULL_FRONT;
+	HR(md3dDevice->CreateRasterizerState(&skullRD, &RenderStates::CullClockwiseRS));
 
 	BuildRoomGeometryBuffers();
 	BuildSkullGeometryBuffers();
@@ -214,7 +208,7 @@ bool Exercise_Chapter10_3::Init()
 	return true;
 }
 
-void Exercise_Chapter10_3::OnResize()
+void Exercise_Chapter10_5::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -222,7 +216,7 @@ void Exercise_Chapter10_3::OnResize()
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void Exercise_Chapter10_3::UpdateScene(float dt)
+void Exercise_Chapter10_5::UpdateScene(float dt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -239,18 +233,31 @@ void Exercise_Chapter10_3::UpdateScene(float dt)
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
 
-	//
-	// Switch the render mode based in key input.
-	//
+	//숫자 입력으로 벽의 깊이 스텐실 버퍼 설정을 변경
 	if (GetAsyncKeyState('1') & 0x8000)
-		mRenderOptions = RenderOptions::Lighting;
+	{
+		D3D11_DEPTH_STENCIL_DESC wallDSD{};
+		wallDSD.DepthEnable = false;
+		wallDSD.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		wallDSD.DepthFunc = D3D11_COMPARISON_LESS;
+		wallDSD.StencilEnable = false;
+		HR(md3dDevice->CreateDepthStencilState(&wallDSD, &mWallDSS));
+	}
 
 	if (GetAsyncKeyState('2') & 0x8000)
-		mRenderOptions = RenderOptions::Textures;
+	{
+		D3D11_DEPTH_STENCIL_DESC wallDSD{};
+		wallDSD.DepthEnable = true;
+		wallDSD.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		wallDSD.DepthFunc = D3D11_COMPARISON_LESS;
+		wallDSD.StencilEnable = false;
+		HR(md3dDevice->CreateDepthStencilState(&wallDSD, &mWallDSS));
+	}
 
 	if (GetAsyncKeyState('3') & 0x8000)
-		mRenderOptions = RenderOptions::TexturesAndFog;
+	{
 
+	}
 
 	//
 	// Allow user to move box.
@@ -277,7 +284,7 @@ void Exercise_Chapter10_3::UpdateScene(float dt)
 	XMStoreFloat4x4(&mSkullWorld, skullRotate * skullScale * skullOffset);
 }
 
-void Exercise_Chapter10_3::DrawScene()
+void Exercise_Chapter10_5::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -355,8 +362,10 @@ void Exercise_Chapter10_3::DrawScene()
 
 		// Wall
 		Effects::BasicFX->SetDiffuseMap(mWallDiffuseMapSRV);
+		md3dImmediateContext->OMSetDepthStencilState(mWallDSS, 1);
 		pass->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->Draw(18, 6);
+		md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	}
 
 	//
@@ -383,6 +392,7 @@ void Exercise_Chapter10_3::DrawScene()
 
 		pass->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+		md3dImmediateContext->OMSetDepthStencilState(0, 0);
 	}
 
 	//
@@ -548,7 +558,7 @@ void Exercise_Chapter10_3::DrawScene()
 	HR(mSwapChain->Present(0, 0));
 }
 
-void Exercise_Chapter10_3::OnMouseDown(WPARAM btnState, int x, int y)
+void Exercise_Chapter10_5::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -556,12 +566,12 @@ void Exercise_Chapter10_3::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void Exercise_Chapter10_3::OnMouseUp(WPARAM btnState, int x, int y)
+void Exercise_Chapter10_5::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void Exercise_Chapter10_3::OnMouseMove(WPARAM btnState, int x, int y)
+void Exercise_Chapter10_5::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -593,7 +603,7 @@ void Exercise_Chapter10_3::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void Exercise_Chapter10_3::BuildRoomGeometryBuffers()
+void Exercise_Chapter10_5::BuildRoomGeometryBuffers()
 {
 	Vertex::Basic32 v[30];
 
@@ -652,7 +662,7 @@ void Exercise_Chapter10_3::BuildRoomGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mRoomVB));
 }
 
-void Exercise_Chapter10_3::BuildSkullGeometryBuffers()
+void Exercise_Chapter10_5::BuildSkullGeometryBuffers()
 {
 	std::ifstream fin("../Models/skull.txt");
 

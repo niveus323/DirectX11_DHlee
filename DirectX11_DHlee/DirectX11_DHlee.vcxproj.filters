@@ -150,6 +150,15 @@
     <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_7.cpp">
       <Filter>소스 파일\Demos\Chapter 10</Filter>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_8.cpp">
+      <Filter>소스 파일\Demos\Chapter 10</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_9.cpp">
+      <Filter>소스 파일\Demos\Chapter 10</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_11.cpp">
+      <Filter>소스 파일\Demos\Chapter 10</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\d3dApp.h">

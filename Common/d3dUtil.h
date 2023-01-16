@@ -1,11 +1,7 @@
 #ifndef D3DUTIL_H
 #define D3DUTIL_H
 
-#if defined(DEBUG) || defined(_DEBUG)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
-
+#include <vld.h>
 #include <string>
 #include <d3d11.h>
 #include "d3dx11effect.h"
@@ -23,23 +19,6 @@
 #include "DDSTextureLoader11.h"
 #include "LightHelper.h"
 using namespace DirectX;
-
-
-
-template<size_t Alignment>
-class AlignedAllocationPolicy
-{
-public:
-	static void* operator new(size_t size)
-	{
-		return _aligned_malloc(size, Alignment);
-	}
-
-	static void operator delete(void* memory)
-	{
-		_aligned_free(memory);
-	}
-};
 
 //D3D 함수들이 돌려주는 HRESULT 형식의 반환값을 점검
 //DXTrace를 사용하기 위해 dxerr 포함. 오류가 발생한 파일과 행번호를 보여주는 메시지 상자를 띄우는 함수.

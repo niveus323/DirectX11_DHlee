@@ -144,7 +144,9 @@
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\LightHelper.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
-    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_11.cpp" />
+    <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_11.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_7.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -160,6 +162,7 @@
     <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_9.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 11\TreeBillboardDemo.cpp" />
     <ClCompile Include="Demos\Chapter 4\InitDirect3DApp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -273,6 +276,7 @@
     <None Include="..\FX\color.fxo" />
     <None Include="..\FX\LightHelper.fxo" />
     <None Include="..\FX\Lighting.fxo" />
+    <None Include="..\FX\TreeSprite.fxo" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Common\DirectX11_DHlee.rc" />
@@ -332,6 +336,17 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\FX\Multitexturing.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc compile for release: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\FX\TreeSprite.fx">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for debug: %(FullPath)</Message>

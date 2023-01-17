@@ -40,6 +40,9 @@
     <Filter Include="소스 파일\Demos\Chapter 10">
       <UniqueIdentifier>{4ecd08dd-ee98-49e7-b456-895ef1e22a0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Demos\Chapter 11">
+      <UniqueIdentifier>{df3796c2-7c3d-4406-a6f7-40b4c47441af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\d3dApp.cpp">
@@ -159,6 +162,9 @@
     <ClCompile Include="Demos\Chapter 10\Exercise_Chapter 10_11.cpp">
       <Filter>소스 파일\Demos\Chapter 10</Filter>
     </ClCompile>
+    <ClCompile Include="Demos\Chapter 11\TreeBillboardDemo.cpp">
+      <Filter>소스 파일\Demos\Chapter 11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\d3dApp.h">
@@ -229,6 +235,9 @@
     <CustomBuild Include="..\FX\Multitexturing.fx">
       <Filter>FX</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\FX\TreeSprite.fx">
+      <Filter>FX</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\FX\color.fxo">
@@ -244,6 +253,9 @@
       <Filter>FX</Filter>
     </None>
     <None Include="..\FX\CartoonRendering.fxo">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="..\FX\TreeSprite.fxo">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

@@ -12,11 +12,58 @@ enum RenderOptions
 	TexturesAndFog = 2
 };
 
-class TreeBillboardDemo : public D3DApp
+enum NormalLineOptions
+{
+	PerVertex = 0,
+	PerTriangle = 1
+};
+
+const D3D11_INPUT_ELEMENT_DESC normalLineDesc[] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0}
+};
+
+struct NormalVertex
+{
+	XMFLOAT3 Pos;
+	XMFLOAT3 Normal;
+	XMFLOAT4 Color;
+};
+
+class NormalLineEffect : public Effect
 {
 public:
-	TreeBillboardDemo(HINSTANCE hInstance);
-	~TreeBillboardDemo();
+	NormalLineEffect(ID3D11Device* device, const std::wstring& filename)
+		: Effect(device, filename)
+	{
+		ColorTech = mFX->GetTechniqueByName("ColorTech");
+		TriTech = mFX->GetTechniqueByName("TriNormalTech");
+		WorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+		World = mFX->GetVariableByName("gWorld")->AsMatrix();
+		WorldInvTranspose = mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
+	}
+	~NormalLineEffect() {};
+
+	void SetWorldViewProj(CXMMATRIX M) { WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorld(CXMMATRIX M) { World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorldInvTranspose(CXMMATRIX M) { WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
+
+
+	ID3DX11EffectTechnique* ColorTech;
+	ID3DX11EffectTechnique* TriTech;
+
+	ID3DX11EffectMatrixVariable* WorldViewProj;
+	ID3DX11EffectMatrixVariable* World;
+	ID3DX11EffectMatrixVariable* WorldInvTranspose;
+};
+
+class Exercise_Chapter_11_4 : public D3DApp
+{
+public:
+	Exercise_Chapter_11_4(HINSTANCE hInstance);
+	~Exercise_Chapter_11_4();
 
 	bool Init();
 	void OnResize();
@@ -33,8 +80,7 @@ private:
 	void BuildLandGeometryBuffers();
 	void BuildWaveGeometryBuffers();
 	void BuildCrateGeometryBuffers();
-	void BuildTreeSpritesBuffer();
-	void DrawTreeSprites(CXMMATRIX viewProj);
+	void DrawNormalLines();
 
 private:
 	ID3D11Buffer* mLandVB;
@@ -46,14 +92,11 @@ private:
 	ID3D11Buffer* mBoxVB;
 	ID3D11Buffer* mBoxIB;
 
-	ID3D11Buffer* mTreeSpritesVB;
-
-	ID3D11SamplerState* mSamplerState;
-
 	ID3D11ShaderResourceView* mGrassMapSRV;
 	ID3D11ShaderResourceView* mWavesMapSRV;
 	ID3D11ShaderResourceView* mBoxMapSRV;
-	ID3D11ShaderResourceView* mTreeTextureMapArraySRV;
+
+	ID3D11SamplerState* mSamplerState;
 
 	Waves mWaves;
 
@@ -61,7 +104,6 @@ private:
 	Material mLandMat;
 	Material mWavesMat;
 	Material mBoxMat;
-	Material mTreeMat;
 
 	XMFLOAT4X4 mGrassTexTransform;
 	XMFLOAT4X4 mWaterTexTransform;
@@ -74,10 +116,6 @@ private:
 
 	UINT mLandIndexCount;
 
-	static const UINT TreeCount = 32;
-
-	bool mAlphaToCoverageOn;
-
 	XMFLOAT2 mWaterTexOffset;
 
 	RenderOptions mRenderOptions;
@@ -89,6 +127,15 @@ private:
 	float mRadius;
 
 	POINT mLastMousePos;
+
+	NormalLineEffect* normalLineFX;
+
+	ID3D11Buffer* mBoxNormalVB;
+	ID3D11Buffer* mWavesNormalVB;
+	ID3D11Buffer* mLandNormalVB;
+
+	ID3D11InputLayout* normalLineLayout;
+	NormalLineOptions mNormalLineOptions;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -99,7 +146,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	TreeBillboardDemo theApp(hInstance);
+	Exercise_Chapter_11_4 theApp(hInstance);
 
 	if (!theApp.Init())
 		return 0;
@@ -107,14 +154,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	return theApp.Run();
 }
 
-TreeBillboardDemo::TreeBillboardDemo(HINSTANCE hInstance)
-	: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mTreeSpritesVB(0),
-	mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0), mAlphaToCoverageOn(true),
-	mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog),
+Exercise_Chapter_11_4::Exercise_Chapter_11_4(HINSTANCE hInstance)
+	: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0),
+	mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mRenderOptions(RenderOptions::Textures),
 	mTheta(1.3f * MathHelper::Pi), mPhi(0.4f * MathHelper::Pi), mRadius(80.0f)
 {
-	mMainWndCaption = TEXT("Tree Billboard Demo");
-	mEnable4xMsaa = true;
+	mMainWndCaption = TEXT("연습문제 11장 4~5번");
+	mEnable4xMsaa = false;
 
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
@@ -158,13 +204,9 @@ TreeBillboardDemo::TreeBillboardDemo(HINSTANCE hInstance)
 	mBoxMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
-
-	mTreeMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	mTreeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	mTreeMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 }
 
-TreeBillboardDemo::~TreeBillboardDemo()
+Exercise_Chapter_11_4::~Exercise_Chapter_11_4()
 {
 	md3dImmediateContext->ClearState();
 	ReleaseCOM(mLandVB);
@@ -173,19 +215,23 @@ TreeBillboardDemo::~TreeBillboardDemo()
 	ReleaseCOM(mWavesIB);
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
-	ReleaseCOM(mTreeSpritesVB);
 	ReleaseCOM(mGrassMapSRV);
 	ReleaseCOM(mWavesMapSRV);
 	ReleaseCOM(mBoxMapSRV);
-	ReleaseCOM(mTreeTextureMapArraySRV);
-	ReleaseCOM(mSamplerState);
+
+	ReleaseCOM(mLandNormalVB);
+	ReleaseCOM(mWavesNormalVB);
+	ReleaseCOM(mBoxNormalVB);
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
 	RenderStates::DestroyAll();
+
+	ReleaseCOM(normalLineLayout);
+	SafeDelete(normalLineFX);
 }
 
-bool TreeBillboardDemo::Init()
+bool Exercise_Chapter_11_4::Init()
 {
 	if (!D3DApp::Init())
 		return false;
@@ -198,21 +244,21 @@ bool TreeBillboardDemo::Init()
 	InputLayouts::InitAll(md3dDevice);
 	RenderStates::InitAll(md3dDevice);
 
+	normalLineFX = new NormalLineEffect(md3dDevice, TEXT("../FX/NormalLine.fxo"));
+	D3DX11_PASS_DESC passDesc;
+	normalLineFX->ColorTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	HR(md3dDevice->CreateInputLayout(normalLineDesc, 3, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &normalLineLayout));
 
 	ID3D11Resource* texResource = nullptr;
+
 	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/HillsAndWaves/grass.dds"), &texResource, &mGrassMapSRV));
 	ReleaseCOM(texResource);
+
 	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/HillsAndWaves/water2.dds"), &texResource, &mWavesMapSRV));
 	ReleaseCOM(texResource);
+
 	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/HillsAndWaves/WireFence.dds"), &texResource, &mBoxMapSRV));
 	ReleaseCOM(texResource);
-	HR(CreateDDSTextureFromFile(md3dDevice, TEXT("../Textures/Tree/array.dds"), &texResource, &mTreeTextureMapArraySRV));
-	ReleaseCOM(texResource);
-
-	BuildLandGeometryBuffers();
-	BuildWaveGeometryBuffers();
-	BuildCrateGeometryBuffers();
-	BuildTreeSpritesBuffer();
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -224,10 +270,14 @@ bool TreeBillboardDemo::Init()
 
 	HR(md3dDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
+	BuildLandGeometryBuffers();
+	BuildWaveGeometryBuffers();
+	BuildCrateGeometryBuffers();
+
 	return true;
 }
 
-void TreeBillboardDemo::OnResize()
+void Exercise_Chapter_11_4::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -235,7 +285,7 @@ void TreeBillboardDemo::OnResize()
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void TreeBillboardDemo::UpdateScene(float dt)
+void Exercise_Chapter_11_4::UpdateScene(float dt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -287,8 +337,20 @@ void TreeBillboardDemo::UpdateScene(float dt)
 		v[i].Tex.x = 0.5f + mWaves[i].x / mWaves.Width();
 		v[i].Tex.y = 0.5f - mWaves[i].z / mWaves.Depth();
 	}
-
 	md3dImmediateContext->Unmap(mWavesVB, 0);
+
+	//연습문제 4
+	//wavesNormalVB도 재설정
+	HR(md3dImmediateContext->Map(mWavesNormalVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+
+	NormalVertex* nv = reinterpret_cast<NormalVertex*>(mappedData.pData);
+	for (UINT i = 0; i < mWaves.VertexCount(); ++i)
+	{
+		nv[i].Pos = mWaves[i];
+		nv[i].Normal = mWaves.Normal(i);
+		nv[i].Color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	}
+	md3dImmediateContext->Unmap(mWavesNormalVB, 0);
 
 	//
 	// Animate water texture coordinates.
@@ -317,54 +379,42 @@ void TreeBillboardDemo::UpdateScene(float dt)
 	if (GetAsyncKeyState('3') & 0x8000)
 		mRenderOptions = RenderOptions::TexturesAndFog;
 
-	if (GetAsyncKeyState('R') & 0x8000)
-		mAlphaToCoverageOn = true;
+	//연습문제 4번
+	if (GetAsyncKeyState('4') & 0x8000)
+		mNormalLineOptions = NormalLineOptions::PerVertex;
 
-	if (GetAsyncKeyState('T') & 0x8000)
-		mAlphaToCoverageOn = false;
+	//연습문제 5번
+	if (GetAsyncKeyState('5') & 0x8000)
+		mNormalLineOptions = NormalLineOptions::PerTriangle;
+
 }
 
-void TreeBillboardDemo::DrawScene()
+void Exercise_Chapter_11_4::DrawScene()
 {
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	md3dImmediateContext->PSSetSamplers(0, 1, &mSamplerState);
+
 	float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	UINT stride = sizeof(Vertex::Basic32);
+	UINT offset = 0;
 
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX viewProj = view * proj;
 
-	//
-	// Draw the tree sprites
-	//
-
-	DrawTreeSprites(viewProj);
-
-	//
-	// DrawTreeSprites() changes InputLayout and PrimitiveTopology, so change it based on 
-	// the geometry we draw next.
-	//
-
-	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	UINT stride = sizeof(Vertex::Basic32);
-	UINT offset = 0;
-
-	md3dImmediateContext->PSSetSamplers(0, 1, &mSamplerState);
-	Effects::BasicFX->SetSamplerstate(mSamplerState);
-	//
-	// Set per frame constants for the rest of the objects.
-	//
+	// Set per frame constants.
 	Effects::BasicFX->SetDirLights(mDirLights);
 	Effects::BasicFX->SetEyePosW(mEyePosW);
 	Effects::BasicFX->SetFogColor(Colors::Silver);
 	Effects::BasicFX->SetFogStart(15.0f);
 	Effects::BasicFX->SetFogRange(175.0f);
 
-	//
-	// Figure out which technique to use.
-	//
 	ID3DX11EffectTechnique* boxTech = Effects::BasicFX->Light3TexAlphaClipFogTech;
 	ID3DX11EffectTechnique* landAndWavesTech = Effects::BasicFX->Light3TexFogTech;
 
@@ -387,7 +437,7 @@ void TreeBillboardDemo::DrawScene()
 	D3DX11_TECHNIQUE_DESC techDesc;
 
 	//
-	// Draw the box.
+	// Draw the box with alpha clipping.
 	// 
 
 	boxTech->GetDesc(&techDesc);
@@ -407,8 +457,8 @@ void TreeBillboardDemo::DrawScene()
 		Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
 		Effects::BasicFX->SetMaterial(mBoxMat);
 		Effects::BasicFX->SetDiffuseMap(mBoxMapSRV);
+		Effects::BasicFX->SetSamplerstate(mSamplerState);
 
-		//md3dImmediateContext->OMSetBlendState(RenderStates::AlphaToCoverageBS, blendFactor, 0xffffffff);
 		md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 		boxTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(36, 0, 0);
@@ -441,6 +491,7 @@ void TreeBillboardDemo::DrawScene()
 		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mGrassTexTransform));
 		Effects::BasicFX->SetMaterial(mLandMat);
 		Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
+		Effects::BasicFX->SetSamplerstate(mSamplerState);
 
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
@@ -462,6 +513,7 @@ void TreeBillboardDemo::DrawScene()
 		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mWaterTexTransform));
 		Effects::BasicFX->SetMaterial(mWavesMat);
 		Effects::BasicFX->SetDiffuseMap(mWavesMapSRV);
+		Effects::BasicFX->SetSamplerstate(mSamplerState);
 
 		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
@@ -471,10 +523,12 @@ void TreeBillboardDemo::DrawScene()
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	}
 
+	DrawNormalLines();
+
 	HR(mSwapChain->Present(0, 0));
 }
 
-void TreeBillboardDemo::OnMouseDown(WPARAM btnState, int x, int y)
+void Exercise_Chapter_11_4::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -482,12 +536,12 @@ void TreeBillboardDemo::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void TreeBillboardDemo::OnMouseUp(WPARAM btnState, int x, int y)
+void Exercise_Chapter_11_4::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void TreeBillboardDemo::OnMouseMove(WPARAM btnState, int x, int y)
+void Exercise_Chapter_11_4::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -519,12 +573,12 @@ void TreeBillboardDemo::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-float TreeBillboardDemo::GetHillHeight(float x, float z)const
+float Exercise_Chapter_11_4::GetHillHeight(float x, float z)const
 {
 	return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
 }
 
-XMFLOAT3 TreeBillboardDemo::GetHillNormal(float x, float z)const
+XMFLOAT3 Exercise_Chapter_11_4::GetHillNormal(float x, float z)const
 {
 	// n = (-df/dx, 1, -df/dz)
 	XMFLOAT3 n(
@@ -538,7 +592,7 @@ XMFLOAT3 TreeBillboardDemo::GetHillNormal(float x, float z)const
 	return n;
 }
 
-void TreeBillboardDemo::BuildLandGeometryBuffers()
+void Exercise_Chapter_11_4::BuildLandGeometryBuffers()
 {
 	GeometryGenerator::MeshData grid;
 
@@ -575,6 +629,19 @@ void TreeBillboardDemo::BuildLandGeometryBuffers()
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mLandVB));
 
+	//연습문제 4번
+	//INPUT DESC에 맞추어 NormalVB 초기화
+	std::vector<NormalVertex> normalVertices(vertices.size());
+	for (UINT i = 0; i < vertices.size(); ++i)
+	{
+		normalVertices[i].Pos = vertices[i].Pos;
+		normalVertices[i].Normal = vertices[i].Normal;
+		normalVertices[i].Color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+	vbd.ByteWidth = sizeof(NormalVertex) * vertices.size();
+	vinitData.pSysMem = &normalVertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mLandNormalVB));
+
 	//
 	// Pack the indices of all the meshes into one index buffer.
 	//
@@ -590,7 +657,7 @@ void TreeBillboardDemo::BuildLandGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mLandIB));
 }
 
-void TreeBillboardDemo::BuildWaveGeometryBuffers()
+void Exercise_Chapter_11_4::BuildWaveGeometryBuffers()
 {
 	// Create the vertex buffer.  Note that we allocate space only, as
 	// we will be updating the data every time step of the simulation.
@@ -603,6 +670,10 @@ void TreeBillboardDemo::BuildWaveGeometryBuffers()
 	vbd.MiscFlags = 0;
 	HR(md3dDevice->CreateBuffer(&vbd, 0, &mWavesVB));
 
+	//연습문제 4번
+	//INPUT DESC에 맞추어 NormalVB 초기화
+	vbd.ByteWidth = sizeof(NormalVertex) * mWaves.VertexCount();
+	HR(md3dDevice->CreateBuffer(&vbd, 0, &mWavesNormalVB));
 
 	// Create the index buffer.  The index buffer is fixed, so we only 
 	// need to create and set once.
@@ -640,7 +711,7 @@ void TreeBillboardDemo::BuildWaveGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIB));
 }
 
-void TreeBillboardDemo::BuildCrateGeometryBuffers()
+void Exercise_Chapter_11_4::BuildCrateGeometryBuffers()
 {
 	GeometryGenerator::MeshData box;
 
@@ -671,6 +742,20 @@ void TreeBillboardDemo::BuildCrateGeometryBuffers()
 	vinitData.pSysMem = &vertices[0];
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mBoxVB));
 
+	//연습문제 4번
+	//INPUT DESC에 맞추어 NormalVB 초기화
+	std::vector<NormalVertex> normalVertices(box.Vertices.size());
+
+	for (UINT i = 0; i < box.Vertices.size(); ++i)
+	{
+		normalVertices[i].Pos = box.Vertices[i].Position;
+		normalVertices[i].Normal = box.Vertices[i].Normal;
+		normalVertices[i].Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	}
+	vbd.ByteWidth = sizeof(NormalVertex) * box.Vertices.size();
+	vinitData.pSysMem = &normalVertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mBoxNormalVB));
+
 	//
 	// Pack the indices of all the meshes into one index buffer.
 	//
@@ -686,79 +771,86 @@ void TreeBillboardDemo::BuildCrateGeometryBuffers()
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoxIB));
 }
 
-void TreeBillboardDemo::BuildTreeSpritesBuffer()
+void Exercise_Chapter_11_4::DrawNormalLines()
 {
-	Vertex::TreePointSprite v[TreeCount]{};
-
-	for (UINT i = 0; i < TreeCount; ++i)
-	{
-		float x = MathHelper::RandF(-35.0f, 35.0f);
-		float z = MathHelper::RandF(-35.0f, 35.0f);
-		float y = GetHillHeight(x, z);
-
-		// Move tree slightly above land height.
-		y += 10.0f;
-
-		v[i].Pos = XMFLOAT3(x, y, z);
-		v[i].Size = XMFLOAT2(24.0f, 24.0f);
-	}
-
-	D3D11_BUFFER_DESC vbd{};
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::TreePointSprite) * TreeCount;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData{};
-	vinitData.pSysMem = v;
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mTreeSpritesVB));
-}
-
-void TreeBillboardDemo::DrawTreeSprites(CXMMATRIX viewProj)
-{
-	Effects::TreeSpriteFX->SetDirLights(mDirLights);
-	Effects::TreeSpriteFX->SetEyePosW(mEyePosW);
-	Effects::TreeSpriteFX->SetFogColor(Colors::Silver);
-	Effects::TreeSpriteFX->SetFogStart(15.0f);
-	Effects::TreeSpriteFX->SetFogRange(175.0f);
-	Effects::TreeSpriteFX->SetViewProj(viewProj);
-	Effects::TreeSpriteFX->SetMaterial(mTreeMat);
-	Effects::TreeSpriteFX->SetTreeTextureMapArray(mTreeTextureMapArraySRV);
-
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	md3dImmediateContext->IASetInputLayout(InputLayouts::TreePointSprite);
-	UINT stride = sizeof(Vertex::TreePointSprite);
+	md3dImmediateContext->IASetInputLayout(normalLineLayout);
+	UINT stride = sizeof(NormalVertex);
 	UINT offset = 0;
 
-	ID3DX11EffectTechnique* treeTech = Effects::TreeSpriteFX->Light3TexAlphaClipFogTech;
-	switch (mRenderOptions)
+	XMMATRIX view = XMLoadFloat4x4(&mView);
+	XMMATRIX proj = XMLoadFloat4x4(&mProj);
+	XMMATRIX viewProj = view * proj;
+
+	ID3DX11EffectTechnique* colorTech;
+	switch (mNormalLineOptions)
 	{
-	case RenderOptions::Lighting:
-		treeTech = Effects::TreeSpriteFX->Light3Tech;
+	case NormalLineOptions::PerVertex:
+		colorTech = normalLineFX->ColorTech;
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		break;
-	case RenderOptions::Textures:
-		treeTech = Effects::TreeSpriteFX->Light3TexAlphaClipTech;
+	case NormalLineOptions::PerTriangle:
+		//연습문제 5번
+		//면 법선을 사용하기 위해서는 TriangleList로 Primitive 설정을 할 필요가 있음.
+		colorTech = normalLineFX->TriTech;
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		break;
-	case RenderOptions::TexturesAndFog:
-		treeTech = Effects::TreeSpriteFX->Light3TexAlphaClipFogTech;
+	default:
+		//기본 설정은 정점 법선 사용으로 설정.
+		colorTech = normalLineFX->ColorTech;
+		md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		break;
 	}
 
 	D3DX11_TECHNIQUE_DESC techDesc;
-	treeTech->GetDesc(&techDesc);
+	colorTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		md3dImmediateContext->IASetVertexBuffers(0, 1, &mTreeSpritesVB, &stride, &offset);
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoxNormalVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mBoxIB, DXGI_FORMAT_R32_UINT, 0);
 
-		float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		// Set per object constants.
+		XMMATRIX world = XMLoadFloat4x4(&mBoxWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world * view * proj;
 
-		if (mAlphaToCoverageOn)
-		{
-			md3dImmediateContext->OMSetBlendState(RenderStates::AlphaToCoverageBS, blendFactor, 0xffffffff);
-		}
-		treeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->Draw(TreeCount, 0);
+		normalLineFX->SetWorld(world);
+		normalLineFX->SetWorldInvTranspose(worldInvTranspose);
+		normalLineFX->SetWorldViewProj(worldViewProj);
 
-		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+		colorTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+		//
+		// Draw the hills.
+		//
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mLandNormalVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mLandIB, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		world = XMLoadFloat4x4(&mLandWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world * view * proj;
+
+		normalLineFX->SetWorldViewProj(worldViewProj);
+
+		colorTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
+
+		//
+		// Draw the waves.
+		//
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesNormalVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		world = XMLoadFloat4x4(&mWavesWorld);
+		worldInvTranspose = MathHelper::InverseTranspose(world);
+		worldViewProj = world * view * proj;
+
+		normalLineFX->SetWorldViewProj(worldViewProj);
+
+		colorTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
 	}
+
 }
